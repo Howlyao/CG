@@ -36,8 +36,26 @@ void Player::Move(Movement direction, float dt) {
 	else if (this->position.z >= border_back) {
 		this->position.z = border_back;
 	}
+	centerPoint.x = position.x;
+	centerPoint.y = position.z;
 
 
+}
+
+void Player::Jump() {
+	isFlying = true;
+	velocityY = JumpVelocityY;
+}
+
+void Player::Fall(float dt) {
+	position.y += (velocityY * dt + AcceG * dt * dt / 2);
+	velocityY += AcceG * dt;
+	if (position.y <= landY) {
+		position.y = landY;
+		velocityY = 0.0f;
+		isFlying = false;
+	}
+	
 }
 
 void Player::Rotate() {
@@ -53,15 +71,18 @@ void Player::Draw(Shader& shader, bool isShadow)
 	glm::vec3 scale = glm::vec3(1.0f);
 	shader.use();
 	
-	shader.setFloat("snowmanHeight", snowmanHeight);
+	shader.setFloat("snowmanHeight", snowmanHeight + position.y);
 	SpriteRenderer::RenderSprite(shader, ResourceManager::GetModel(modelName), isShadow, this->position, scale, this->rotation);
 	
 }
 
 void Player::Update(float dt) {
-	float decrement = decSpeed * dt;
+	/*float decrement = decSpeed * dt;
 	snowmanHeight -= decrement;
 	if (snowmanHeight <= 0.0f) {
 		snowmanHeight = 0.0f;
-	}
+	}*/
+
+	if (isFlying)
+		Fall(dt);
 }

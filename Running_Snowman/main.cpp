@@ -152,6 +152,14 @@ void processInput(GLFWwindow *window)
 		game->Keys[GLFW_KEY_D] = false;
 	}
 
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		game->Keys[GLFW_KEY_SPACE] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+		game->Keys[GLFW_KEY_SPACE] = false;
+	}
+
+
 
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !game->KeysProcessed[GLFW_KEY_ESCAPE]) {

@@ -33,6 +33,7 @@ void Game::Init() {
 	ResourceManager::LoadModel("resources/models/snowman/snowman.obj", "snowman");
 	ResourceManager::LoadModel("resources/models/QQ/qq.obj", "qq");
 	ResourceManager::LoadModel("resources/models/ice/ice.obj", "ice");
+	ResourceManager::LoadModel("resources/models/ladder/ladder.obj", "ladder");
 	
 	unsigned int depthMap = ResourceManager::CreateFrameBuffer("depthFBO", Width, Height);
 	ResourceManager::LoadTexture(depthMap, "depthMap");
@@ -109,6 +110,11 @@ void Game::ProcessInput(float dt) {
 		if (this->Keys[GLFW_KEY_D]) {
 			player->Move(RIGHT, dt);
 		}
+		if (this->Keys[GLFW_KEY_SPACE]) {
+			if (!player->isFlying)
+				player->Jump();
+		}
+
 		camera.Position = player->position;
 
 
@@ -134,6 +140,7 @@ void Game::Update(float dt) {
 		DoCollisions();
 		scene->Update();
 		player->Update(dt);
+		
 	}
 }
 
@@ -204,24 +211,93 @@ void Game::DoCollisions() {
 	{
 		if (!box.destroyed)
 		{
-			if (CheckCollision(*player, box))
+			if (CheckCollisionOBB(*player, box))
 			{
 				player->snowmanHeight += 0.05f;
 				box.destroyed = true;
 			}
 		}
 	}
+	//check collision with ladder
+	bool isCollision = false;
+	for (GameObject &box : scene->ladders)
+	{
+		//collision in planeXOZ
+		if (CheckCollisionOBB(*player, box))
+		{
+			
+			isCollision = true;
+			// player above the ladder
+			if (player->position.y >= box.position.y + box.size.y) {
+				player->landY = box.position.y + box.size.y;
+				
+			} // collision in 3D
+			else if (CheckCollisionY(*player, box)){
+				glm::vec2 nv = glm::normalize(player->centerPoint - box.centerPoint);
+				// ¶¥Í·
+				if (player->position.y + player->size.y >= box.position.y && player->position.y + player->size.y - box.position.y <= 0.2f) {
+					player->velocityY = 0.0f;
+					player->position.y = box.position.y - player->size.y;
+				}
+				else {
+					if (fabs(nv.x) > fabs(nv.y)) {
+						player->position.x = box.position.x + (nv.x / fabs(nv.x) * (box.extents[0] + player->extents[0]));
+
+					}
+					else {
+						player->position.z = box.position.z + (nv.y / fabs(nv.y) * (box.extents[1] + player->extents[1]));
+					}
+				}
+				
+			}
+			
+		}
+	}
+	// is isCollision, there is nothing under player
+	if (!isCollision) {
+		player->landY = 0.0f;
+	}
+	if (player->landY < player->position.y){
+		player->isFlying = true;
+	}
 }
 
-bool Game::CheckCollision(GameObject &one, GameObject &two) {
-	bool collisionX = one.position.x + one.size.x / 2 >= two.position.x - two.size.x / 2 &&
-		two.position.x + two.size.x / 2 >= one.position.x - one.size.x / 2;
+bool Game::CheckCollisionAABB(GameObject &one, GameObject &two) {
+	bool collisionX = one.position.x + one.extents[0] >= two.position.x - two.extents[0] &&
+		two.position.x + two.extents[0] >= one.position.x - one.extents[0];
 	
-	bool collisionY = one.position.y + one.size.y / 2 >= two.position.y - two.size.y / 2 &&
-		two.position.y + two.size.y / 2>= one.position.y - one.size.y / 2;
+	bool collisionY = one.position.y + one.size.y >= two.position.y &&
+		two.position.y + two.size.y >= one.position.y;
 
-	bool collisionZ = one.position.z + one.size.z / 2 >= two.position.z - two.size.z / 2 &&
-		two.position.z + two.size.z / 2 >= one.position.z - one.size.z / 2;
+	bool collisionZ = one.position.z + one.extents[1] >= two.position.z &&
+		two.position.z + one.extents[1] >= one.position.z;
 	
 	return collisionX && collisionY && collisionZ;
+}
+
+bool Game::CheckCollisionOBB(GameObject &one, GameObject &two) {
+	glm::vec2 nv = one.centerPoint - two.centerPoint;
+	glm::vec2 axisA1 = one.axes[0];
+	if (one.getProjectionRadius(axisA1) + two.getProjectionRadius(axisA1) <= fabs(glm::dot(nv, axisA1)))
+		return false;
+	glm::vec2 axisA2 = one.axes[1];
+	if (one.getProjectionRadius(axisA2) + two.getProjectionRadius(axisA2) <= fabs(glm::dot(nv, axisA2)))
+		return false;
+	glm::vec2 axisB1 = two.axes[0];
+	if (one.getProjectionRadius(axisB1) + two.getProjectionRadius(axisB1) <= fabs(glm::dot(nv, axisB1)))
+		return false;
+	glm::vec2 axisB2 = two.axes[1];
+	if (one.getProjectionRadius(axisB2) + two.getProjectionRadius(axisB2) <= fabs(glm::dot(nv, axisB2)))
+		return false;
+	
+	return true;
+
+}
+
+
+bool Game::CheckCollisionY(GameObject &one, GameObject &two) {
+	bool collisionY = one.position.y + one.size.y >= two.position.y &&
+		two.position.y + two.size.y >= one.position.y;
+
+	return collisionY;
 }

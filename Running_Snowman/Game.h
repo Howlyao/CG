@@ -33,8 +33,9 @@ public:
 	void Update(float dt);
 	void Render();
 	void DoCollisions();
-	bool CheckCollision(GameObject &one, GameObject &two);
-
+	bool CheckCollisionAABB(GameObject &one, GameObject &two);
+	bool CheckCollisionOBB(GameObject &one, GameObject &two);
+	bool CheckCollisionY(GameObject &one, GameObject &two);
 	unsigned int quadVAO = 0;
 	GLuint planeVBO;
 	GLuint planeVAO = 0;

@@ -24,16 +24,19 @@ glm::vec3 lightAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 glm::vec3 lightDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
 glm::vec3 lightSpecular = glm::vec3(0.5f, 0.5f, 0.5f);
 //boundary
-float border_left = -220.0f;
-float border_right = 220.0f;
-float border_front = -220.0f;
-float border_back = 220.0f;
+float border_left = -230.0f;
+float border_right = 208.0f;
+float border_front = -230.0f;
+float border_back = 225.0f;
 
 //player
 glm::vec3 playerPos = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 playerSize = glm::vec3(3.0f, 5.0f, 3.0f);
+glm::vec3 playerSize = glm::vec3(2.5f, 5.0f, 2.5f);
 
 //ice
 glm::vec3 iceSize = glm::vec3(2.5f, 2.5f, 0.7f);
-float iceRangeX = 230.0f;
-float iceRangeZ = 230.0f;
+float iceRangeX = 210.0f;
+float iceRangeZ = 220.0f;
+
+//ladder
+glm::vec3 ladderSize = glm::vec3(3.0f, 1.0f, 3.0f);

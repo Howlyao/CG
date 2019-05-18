@@ -9,9 +9,11 @@
 class Scene {
 public:
 	vector<GameObject> ices;
+	vector<GameObject> ladders;
 	Scene();
 	~Scene();
 	void createIces(int number);
+	void createLadder();
 	void Draw(Shader &shader, bool isShadow);
 	void Update();
 

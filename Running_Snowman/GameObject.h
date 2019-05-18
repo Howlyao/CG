@@ -11,6 +11,13 @@ public:
 	glm::vec3   position, size;
 	float     rotation;
 	bool   destroyed;
+
+	// OBB parameter
+	glm::vec2 axes[2];
+	float extents[2];
+	glm::vec2 centerPoint;
+
+
 	// Render state
 	std::string modelName;
 	// Constructor(s)
@@ -18,6 +25,8 @@ public:
 	GameObject(glm::vec3 pos, glm::vec3 size, float rotation, std::string modelName);
 	// Draw sprite
 	virtual void Draw(Shader& shader,bool isShadow);
+	// OBB
+	float getProjectionRadius(glm::vec2 &axis);
 };
 
 

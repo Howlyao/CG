@@ -53,6 +53,10 @@ extern glm::vec3 playerSize;
 extern glm::vec3 iceSize;
 extern float iceRangeX;
 extern float iceRangeZ;
+
+//ladder
+extern glm::vec3 ladderSize;
+
 #endif // ! GLOBAL_VARIABLE
 
 
