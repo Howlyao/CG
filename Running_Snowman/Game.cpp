@@ -31,7 +31,7 @@ void Game::Init() {
 	this->State = GAME_ACTIVE;
 	// load model
 	ResourceManager::LoadModel("resources/models/scene/scene.obj", "scene");
-	//ResourceManager::LoadModel("E:/homework/CG/3dsmax/models/scene/scene.obj", "scene");
+	//ResourceManager::LoadModel("E:/homework/CG/3dsmax/scene2/scene.obj", "scene");
 	//ResourceManager::LoadModel("F:/Scene/scene.obj", "scene");
 	ResourceManager::LoadModel("resources/models/snowman/snowman.obj", "snowman");
 	ResourceManager::LoadModel("resources/models/QQ/qq.obj", "qq");
@@ -225,12 +225,12 @@ void Game::ProcessMouseMovement(float offset) {
 void Game::Update(float dt) {
 	if (this->State == GAME_ACTIVE) {
 		particleSystem->Update(dt);
-		DoCollisions();
+		
 		scene->Update(Time);
 		player->Update(dt);
 		camera.Update(player->position);
 		//cout << player->position.x << " " << player->position.y << " " << player->position.z << endl;
-		
+		DoCollisions();
 		Time += dt;
 	}
 }

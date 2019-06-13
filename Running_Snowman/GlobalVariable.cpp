@@ -9,7 +9,7 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // speed
-float MoveSpeed = 50.5f;
+float MoveSpeed = 30.5f;
 
 // camera
 Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
