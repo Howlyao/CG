@@ -8,14 +8,15 @@
 class GameObject {
 public:
 	// Object state
-	glm::vec3   position, size;
+	glm::vec3   position, size, scale;
 	float     rotation;
 	bool   destroyed;
+	
 
 	// OBB parameter
 	glm::vec2 axes[2];
 	float extents[2];
-	glm::vec2 centerPoint;
+
 
 
 	// Render state

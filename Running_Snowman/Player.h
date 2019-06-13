@@ -11,14 +11,15 @@ public:
 	const float MouseSensitivity = 0.1f;
 	glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
-	
+
+
 	const float JumpVelocityY = 30.0f;
 	const float AcceG = -50.0f;
 	float velocityY = 0.0f;
 	bool isFlying = false;
 	float landY = 0.0f;
 
-	float snowmanHeight = 5.0f;
+	float snowmanHeight = 8.0f;
 	float decSpeed = 0.05f;
 
 	Player();
@@ -29,6 +30,7 @@ public:
 	void Rotate();
 	void Draw(Shader& shader, bool isShadow);
 	void Update(float dt);
+	void SetCollisionPosition(GameObject &box);
 	
 	
 

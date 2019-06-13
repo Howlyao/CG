@@ -14,6 +14,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+extern GLFWwindow* window;
 
 extern glm::mat4 view;
 extern glm::mat4 projection;
@@ -21,6 +22,9 @@ extern glm::mat4 projection;
 // settings
 extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
+
+//MoveSpeed
+extern float MoveSpeed;
 
 // camera
 extern Camera camera;
@@ -41,10 +45,10 @@ extern glm::vec3 lightDiffuse;
 extern glm::vec3 lightSpecular;
 
 //boundary
-extern float border_left;
-extern float border_right;
-extern float border_front;
-extern float border_back;
+//extern float border_left;
+//extern float border_right;
+//extern float border_front;
+//extern float border_back;
 
 extern glm::vec3 playerPos;
 extern glm::vec3 playerSize;

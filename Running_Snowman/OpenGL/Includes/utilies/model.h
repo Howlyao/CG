@@ -158,6 +158,7 @@ private:
 		Material mat;
 		aiColor3D color;
 		float shininess;
+		float d;
 		//load material color
 		material->Get(AI_MATKEY_COLOR_AMBIENT, color);
 		mat.Ka = glm::vec4(color.r, color.g, color.b, 1.0);
@@ -165,9 +166,12 @@ private:
 		mat.Kd = glm::vec4(color.r, color.g, color.b, 1.0);
 		material->Get(AI_MATKEY_COLOR_SPECULAR, color);
 		mat.Ks = glm::vec4(color.r, color.g, color.b, 1.0);
-		
 		material->Get(AI_MATKEY_SHININESS, shininess);
 		mat.Ns = shininess / 4;
+		material->Get(AI_MATKEY_OPACITY, d);
+		mat.d = d;
+
+		
 		// 1. diffuse maps
 		vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -227,6 +231,7 @@ private:
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
 
+		cout << filename.c_str() << endl;
 		int width, height, nrComponents;
 		unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
 		if (data)

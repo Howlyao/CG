@@ -6,7 +6,8 @@ private:
 
 	const float PI = 3.14159265359;
 
-	Shader shader = Shader("resources/shaders/waterWave/wave.vs", "resources/shaders/waterWave/waterWave.fs");
+	//Shader shader = Shader("resources/shaders/waterWave/wave.vs", "resources/shaders/waterWave/waterWave.fs");
+	Shader shader = Shader("resources/shaders/waterWave/wave.vs", "resources/shaders/waterWave/wave.fs");
 
 	const unsigned int X_SEGMENTS = 64;
 	const unsigned int Y_SEGMENTS = 64;
@@ -37,6 +38,7 @@ private:
 	};
 	// set color
 	glm::vec3 seaColor = glm::vec3(0.31, 0.47, 0.75);
+	//glm::vec3 seaColor = glm::vec3(0.0, 0.0, 0.75);
 
 public:
 	Sea() {
@@ -104,26 +106,13 @@ public:
 	}
 
 	void Draw() {
-		shader.use();
+		
 		glBindVertexArray(VAO);
-		glm::mat4 model = glm::mat4(1.0f);
-
-		//scale
-		model = glm::translate(model, glm::vec3(-500.0f, -10.0f, -50.0f));
-		model = glm::scale(model, glm::vec3(1000.0f, 150.0f, 1000.0f));
-
-		shader.setMat4("model", model);
+		
+		shader.use();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		shader.setVec3("viewPos", camera.Position);
-		//set light
-		shader.setVec3("dirLight.direction", lightDirection);
-		shader.setVec3("dirLight.color", lightColor);
-		shader.setVec3("dirLight.ambient", lightAmbient);
-		shader.setVec3("dirLight.diffuse", lightDiffuse);
-		shader.setVec3("dirLight.specular", lightSpecular);
-		//set color
-		shader.setVec3("objectColor", seaColor);
 
 		float t = glfwGetTime();
 		shader.setFloat("t", t);
@@ -162,7 +151,35 @@ public:
 			shader.setFloat(str, speed[i]);
 		}
 
-		shader.setFloat("PI", PI);
+		//shader.setFloat("PI", PI);
+		//model
+		glm::mat4 model = glm::mat4(1.0f);
+
+		//scale
+		model = glm::translate(model, glm::vec3(-500.0f, -10.0f, -50.0f));
+		model = glm::scale(model, glm::vec3(1000.0f, 150.0f, 1000.0f));
+
+		shader.setMat4("model", model);
+		
+		//set light
+		//shader.setVec3("dirLight.direction", lightDirection);
+		//shader.setVec3("dirLight.color", lightColor);
+		//shader.setVec3("dirLight.ambient", lightAmbient);
+		//shader.setVec3("dirLight.diffuse", lightDiffuse);
+		//shader.setVec3("dirLight.specular", lightSpecular);
+
+		//set color
+		//shader.setVec3("objectColor", seaColor);	
+
+		//pbr
+		shader.setVec3("albedo", seaColor);
+		shader.setFloat("ao", 1.0f);
+		shader.setVec3("lightPos", glm::vec3(20.0f, 10.0f, 300.0f));
+		shader.setVec3("lightColor", lightColor);
+		shader.setVec3("lightColor", glm::vec3(1000.0f,1000.0f,1000.0f));
+		shader.setFloat("metallic", 0.2f);
+		shader.setFloat("roughness", 0.0f);
+		
 	}
 
 

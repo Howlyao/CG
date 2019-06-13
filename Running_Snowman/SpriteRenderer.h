@@ -19,7 +19,7 @@ public:
 	// Destructor
 	~SpriteRenderer();
 	// Renders a defined quad textured with given model and shader
-	static void RenderSprite(Shader &shader, Model &sprite, bool isShadow, glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f), glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f), float rotate = 0.0f);
+	static void RenderSprite(Shader &shader, Model &sprite, bool isShadow, glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f), glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), float rotate = 0.0f);
 private:
 	SpriteRenderer();
 	

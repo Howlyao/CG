@@ -130,6 +130,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
@@ -142,6 +143,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sea.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="stb_image.h" />

@@ -10,7 +10,8 @@ uniform mat4 projection;
 
 
 #define WAVE_COUNT 2
-uniform float PI;
+const float PI = 3.14159265359;
+
 uniform float t;
 uniform vec2 direction[WAVE_COUNT];
 float steepness[WAVE_COUNT];

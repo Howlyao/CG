@@ -37,12 +37,15 @@ public:
 	//create FrameBuffer and return Texture id
 	static unsigned int CreateFrameBuffer(std::string name, int width, int height);
 	//
+	static unsigned int CreateFrameBufferCube(std::string name, int width, int height);
+	//
 	static unsigned int LoadTexture(unsigned int texture_id, std::string name);
 	//
 	static unsigned int LoadTexture(const char *textureFile, std::string name);
 	//
 	static unsigned int GetTexture(std::string name);
 	//
+	static unsigned int LoadCubemap(vector<std::string> &faces, std::string name);
 
 	static void      Clear();
 private:
@@ -50,6 +53,10 @@ private:
 	ResourceManager() { }
 
 	static unsigned int loadTexture(const char* path);
+
+	static unsigned int loadCubemap(vector<std::string> &faces);
 };
+
+
 
 #endif

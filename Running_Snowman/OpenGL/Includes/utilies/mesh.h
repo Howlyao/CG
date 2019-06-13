@@ -24,10 +24,10 @@ struct Vertex {
 	// texCoords
 	glm::vec2 TexCoords;
 	// tangent
-	glm::vec3 Tangent;
-	// bitangent
-	glm::vec3 Bitangent;
-	// color
+	// glm::vec3 Tangent;
+	// // bitangent
+	// glm::vec3 Bitangent;
+	// // color
 };
 
 struct Texture {
@@ -45,6 +45,9 @@ struct Material {
 	glm::vec3 Ks;
 	//shininess
 	float Ns;
+	//transparent
+	float d;
+
 };
 
 class Mesh {
@@ -108,7 +111,7 @@ public:
 		shader.setVec3("material.diffuse", material.Kd);
 		shader.setVec3("material.specular", material.Ks);
 		shader.setFloat("material.shininess", material.Ns);
-
+		shader.setFloat("material.alpha", material.d);
 		// draw mesh
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -152,12 +155,12 @@ private:
 		// vertex texture coords
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-		// vertex tangent
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
-		// vertex bitangent
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+		// // vertex tangent
+		// glEnableVertexAttribArray(3);
+		// glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+		// // vertex bitangent
+		// glEnableVertexAttribArray(4);
+		// glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 
 		glBindVertexArray(0);
 	}
