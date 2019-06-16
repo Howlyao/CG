@@ -108,7 +108,7 @@ void Player::SetCollisionPosition(GameObject &box) {
 	float lengthX = 500.0f, lengthZ = 500.0f;
 	bool flagX = true, flagZ = true;
 	if (this->position.x + this->extents[0] > box.position.x - box.extents[0] &&
-		this->position.x - this->extents[0] < box.position.x - box.extents[0]) {
+		this->position.x - this->extents[0] <= box.position.x - box.extents[0]) {
 		
 		flagX = true;
 		lengthX = this->position.x + this->extents[0] - (box.position.x - box.extents[0]);
@@ -116,7 +116,7 @@ void Player::SetCollisionPosition(GameObject &box) {
 	}
 
 	else if (this->position.x + this->extents[0] > box.position.x + box.extents[0] &&
-		this->position.x - this->extents[0] < box.position.x + box.extents[0]) {
+		this->position.x - this->extents[0] <= box.position.x + box.extents[0]) {
 
 		flagX = false;
 		lengthX = (box.position.x + box.extents[0]) - (this->position.x - this->extents[0]);
@@ -128,14 +128,14 @@ void Player::SetCollisionPosition(GameObject &box) {
 
 
 	if (this->position.z + this->extents[1] > box.position.z - box.extents[1] &&
-		this->position.z - this->extents[1] < box.position.z - box.extents[1]) {
+		this->position.z - this->extents[1] <= box.position.z - box.extents[1]) {
 
 		flagZ = true;
 		lengthZ = this->position.z + this->extents[1] - (box.position.z - box.extents[1]);
 		
 	}
 	else if (this->position.z + this->extents[1] > box.position.z + box.extents[1] &&
-		this->position.z - this->extents[1] < box.position.z + box.extents[1]) {
+		this->position.z - this->extents[1] <= box.position.z + box.extents[1]) {
 
 		flagZ = false;
 		lengthZ = (box.position.z + box.extents[1]) - (this->position.z - this->extents[1]);

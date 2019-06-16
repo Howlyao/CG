@@ -57,6 +57,7 @@ void Game::Init() {
 	Shader stencilShader = ResourceManager::LoadShader("resources/shaders/stencil/stencil.vs", "resources/shaders/stencil/stencil.fs", NULL, "stencilShader");
 	Shader hpShader = ResourceManager::LoadShader("resources/shaders/hpShader/hp.vs", "resources/shaders/hpShader/hp.fs", NULL, "hpShader");
 	Shader skyboxShader = ResourceManager::LoadShader("resources/shaders/skybox/skybox.vs", "resources/shaders/skybox/skybox.fs", NULL, "skyboxShader");
+	Shader explodeShader = ResourceManager::LoadShader("resources/shaders/explode/explode.vs", "resources/shaders/explode/explode.fs", "resources/shaders/explode/explode.gs", "explodeShader");
 	
 	// get shader
 	
@@ -231,8 +232,16 @@ void Game::Update(float dt) {
 		camera.Update(player->position);
 		//cout << player->position.x << " " << player->position.y << " " << player->position.z << endl;
 		DoCollisions();
-		Time += dt;
+
+		//if (player->snowmanHeight == 0) {
+		//	this->State = GAME_OVER;
+		//	Time = 0.0;
+		//	
+		//}
+		//Time += dt;
 	}
+
+	Time += dt;
 }
 
 void Game::Render() {
@@ -249,8 +258,33 @@ void Game::Render() {
 		
 		
 	}
-	if (this->State == GAME_PAUSE) {
+	else if (this->State == GAME_PAUSE) {
 
+	}
+	else if (this->State == GAME_OVER) {
+		// Load shader and set uniform variable
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		view = camera.GetViewMatrix();
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
+		Shader lightShader = ResourceManager::GetShader("lightShader");
+		Shader explodeShader = ResourceManager::GetShader("explodeShader");
+		//Player render
+		
+
+		//Time = glfwGetTime();
+		explodeShader.use();
+		explodeShader.setFloat("time", Time);
+		 
+		player->Draw(explodeShader, false);
+
+
+		Shader snowShader = ResourceManager::GetShader("snowShader");
+		particleSystem->Draw(snowShader);
+
+		sea->Draw();
+
+		scene->Draw(lightShader, false);
 	}
 }
 
@@ -314,7 +348,7 @@ void Game::renderScene(bool isShadow) {
 		view = camera.GetViewMatrix();
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
 		//Shader lightShader = ResourceManager::GetShader("lightShader");
-		Shader lightShader = ResourceManager::GetShader("pointLightShader");
+		Shader lightShader = ResourceManager::Shaders["pointLightShader"];//ResourceManager::GetShader("pointLightShader");
 		//Player render
 		Shader snowmanShader = ResourceManager::GetShader("snowmanShader");
 		player->Draw(snowmanShader, false);
@@ -357,11 +391,15 @@ void Game::DoCollisions() {
 			} // collision in 3D
 			else if (CheckCollisionY(*player, box)){
 				
+				cout << player->position.y + player->size.y << endl;
+				cout << box.position.y << endl;
+
 				
 				// ¶¥Í·
-				if (player->position.y + player->size.y >= box.position.y && player->position.y + player->size.y - box.position.y <= 0.5f) {
+				if (player->position.y + player->size.y >= box.position.y  && player->position.y + player->size.y - box.position.y <= 4.0) {
 					player->velocityY = 0.0f;
 					player->position.y = box.position.y - player->size.y;
+					cout << "test" << endl;
 				}
 				else {
 					//wrong only for square
@@ -384,7 +422,7 @@ void Game::DoCollisions() {
 	}
 	// is isCollision, there is nothing under player
 
-	if (player->landY + 1.0f < player->position.y){
+	if (player->landY < player->position.y){
 		player->isFlying = true;
 	}
 }

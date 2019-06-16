@@ -104,6 +104,7 @@ void Scene::Draw(Shader &shader, bool isShadow) {
 	glDisable(GL_STENCIL_TEST);
 
 	if (skybox != NULL) {
+
 		skybox->Draw(rate);
 	}
 }
