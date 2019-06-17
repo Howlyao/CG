@@ -7,12 +7,14 @@
 #include "ParticleSystem.h"
 #include "Player.h"
 #include "Sea.h"
+#include "TextRenderer.h"
 
 enum GameState {
 	GAME_ACTIVE,
 	GAME_PAUSE,
 	GAME_WIN,
-	GAME_OVER
+	GAME_OVER,
+	GAME_EDIT
 };
 
 class Game
@@ -80,6 +82,8 @@ private:
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 
+
+	void lightUpdate(float time);
 	
 
 	

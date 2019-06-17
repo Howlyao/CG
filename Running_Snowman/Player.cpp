@@ -91,16 +91,22 @@ void Player::Draw(Shader& shader, bool isShadow)
 }
 
 void Player::Update(float dt) {
-	float decrement = decSpeed * dt;
-	snowmanHeight -= decrement;
 
-	
+	if (snowmanHeight > 8.0) {
+		snowmanHeight = 8.0f;
+	}else if (blood_lock == BLOOD_LOOSE) {
+		float decrement = decSpeed * dt * time_rate;
+		snowmanHeight -= decrement;
+
+	}
 	if (snowmanHeight < 0.0f) {
 		snowmanHeight = 0.0f;
 	}
 	
-	if (isFlying)
-		Fall(dt);
+	if (imgui_view == IMGUI_VIEW_MOVE) {
+		if (isFlying)
+			Fall(dt);
+	}
 }
 
 

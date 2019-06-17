@@ -77,6 +77,7 @@ void Scene::Draw(Shader &shader, bool isShadow) {
 		ladder.Draw(shader, isShadow);
 	}
 
+
 	glEnable(GL_STENCIL_TEST);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
@@ -91,17 +92,20 @@ void Scene::Draw(Shader &shader, bool isShadow) {
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
 	glDisable(GL_DEPTH_TEST);
-	if (!isShadow) {
-		for (GameObject &ice : ices) {
-			if (!ice.destroyed) {
-				ice.scale = glm::vec3(1.05f, 1.05f, 1.05f);
-				ice.Draw(ResourceManager::GetShader("stencilShader"), isShadow);
+	if (stencil_show == WITH_STENCIL) {
+		if (!isShadow) {
+			for (GameObject &ice : ices) {
+				if (!ice.destroyed) {
+					ice.scale = glm::vec3(1.05f, 1.05f, 1.05f);
+					ice.Draw(ResourceManager::GetShader("stencilShader"), isShadow);
+				}
 			}
 		}
 	}
 	glStencilMask(0xFF);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_STENCIL_TEST);
+
 
 	if (skybox != NULL) {
 
@@ -119,20 +123,20 @@ void Scene::Update(float time) {
 		}
 	}
 
-	float oneDayTime = 60.0f;
+	
 	time = time - (int)(time / oneDayTime) * oneDayTime;
 
-	if (time < 20.0f) {
+	if (time < dayLeft) {
 		rate = 0.0f;
 	}
-	else if ( time >= 20.0f && time <= 30.0f) {
-		rate = (time - 20.0f) / (30.0f - 20.0f);
+	else if (time >= dayLeft && time <= dayRight) {
+		rate = (time - dayLeft) / (dayRight - dayLeft);
 	}
-	else if (time > 30.0f && time < 50.0f) {
+	else if (time > dayRight && time < nightLeft) {
 		rate = 1.0f;
 	}
-	else if (time >= 50.0f && time <= 60.0f) {
-		rate = 1.0f - ((time - 50.0f) / (60.0f - 50.0f));
+	else if (time >= nightLeft && time <= nightRight) {
+		rate = 1.0f - ((time - nightLeft) / (nightRight - nightLeft));
 	}
 
 

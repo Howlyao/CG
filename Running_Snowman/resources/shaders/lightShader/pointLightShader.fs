@@ -89,7 +89,6 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos)
 
     return shadow;
 
-    return shadow;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir)

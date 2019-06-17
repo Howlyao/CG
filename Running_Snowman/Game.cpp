@@ -1,10 +1,13 @@
 #include "Game.h"
-
+#include "Menu.h"
 
 Scene *scene = NULL;
 ParticleSystem *particleSystem = NULL;
 Player *player = NULL;
 Sea *sea = NULL;
+TextRenderer *textRenderer = NULL;
+Menu *menu = NULL;
+
 
 Game::Game(int width,int height) {
 	this->Width = width;
@@ -21,6 +24,7 @@ Game::~Game() {
 	delete particleSystem;
 	delete player;
 	delete sea;
+	delete textRenderer;
 
 }
 
@@ -31,22 +35,20 @@ void Game::Init() {
 	this->State = GAME_ACTIVE;
 	// load model
 	ResourceManager::LoadModel("resources/models/scene/scene.obj", "scene");
-	//ResourceManager::LoadModel("E:/homework/CG/3dsmax/scene2/scene.obj", "scene");
-	//ResourceManager::LoadModel("F:/Scene/scene.obj", "scene");
 	ResourceManager::LoadModel("resources/models/snowman/snowman.obj", "snowman");
 	ResourceManager::LoadModel("resources/models/QQ/qq.obj", "qq");
 	ResourceManager::LoadModel("resources/models/ice/ice.obj", "ice");
 	ResourceManager::LoadModel("resources/models/ladder/ladder.obj", "ladder");
 	ResourceManager::LoadModel("resources/models/hp/hp.obj", "hp");
 	ResourceManager::LoadModel("resources/models/wall/wall.obj", "wall");
-	
+
 	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 	unsigned int depthMap = ResourceManager::CreateFrameBuffer("depthFBO", SHADOW_WIDTH, SHADOW_HEIGHT);
 	ResourceManager::LoadTexture(depthMap, "depthMap");
 
 	unsigned int depthCubemap = ResourceManager::CreateFrameBufferCube("pointDepthFBO", SHADOW_WIDTH, SHADOW_HEIGHT);
 	ResourceManager::LoadTexture(depthCubemap, "depthCubemap");
-	
+
 	// load shader
 	Shader depthShader = ResourceManager::LoadShader("resources/shaders/depthShader/depthShader.vs", "resources/shaders/depthShader/depthShader.fs", NULL, "depthShader");
 	Shader pointDepthShader = ResourceManager::LoadShader("resources/shaders/depthShader/pointDepthShader.vs", "resources/shaders/depthShader/pointDepthShader.fs", "resources/shaders/depthShader/pointDepthShader.gs", "pointDepthShader");
@@ -58,12 +60,13 @@ void Game::Init() {
 	Shader hpShader = ResourceManager::LoadShader("resources/shaders/hpShader/hp.vs", "resources/shaders/hpShader/hp.fs", NULL, "hpShader");
 	Shader skyboxShader = ResourceManager::LoadShader("resources/shaders/skybox/skybox.vs", "resources/shaders/skybox/skybox.fs", NULL, "skyboxShader");
 	Shader explodeShader = ResourceManager::LoadShader("resources/shaders/explode/explode.vs", "resources/shaders/explode/explode.fs", "resources/shaders/explode/explode.gs", "explodeShader");
-	
+	Shader textShader = ResourceManager::LoadShader("resources/shaders/text/text.vs", "resources/shaders/text/text.fs", NULL, "textShader");
+
 	// get shader
-	
+
 	//load Texture
 	unsigned int snowTexture = ResourceManager::LoadTexture("resources/textures/particles/snow.png", "snow");
-	
+
 	//load skyBox
 	vector<std::string> faces1
 	{
@@ -75,7 +78,7 @@ void Game::Init() {
 		"resources/textures/skybox/skybox4/back.jpg"
 	};
 
-	
+
 
 	vector<std::string> faces2
 	{
@@ -99,7 +102,7 @@ void Game::Init() {
 	skyboxShader.use();
 	skyboxShader.setInt("skybox1", 0);
 	skyboxShader.setInt("skybox2", 1);
-	
+
 	// set direct light space matrix
 	//float near_plane = 1.0f, far_plane = 100.0f;
 	//glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
@@ -119,7 +122,7 @@ void Game::Init() {
 	// set point light shader
 	float near_plane = 1.0f;
 	float far_plane = 1000.0;
-	
+
 	pointLightShader.use();
 	pointLightShader.setVec3("pointLight.pos", lightPos);
 	pointLightShader.setVec3("pointLight.color", lightColor);
@@ -137,7 +140,7 @@ void Game::Init() {
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	
+
 	pointDepthShader.use();
 	for (unsigned int i = 0; i < 6; ++i)
 		pointDepthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
@@ -177,10 +180,17 @@ void Game::Init() {
 	player = new Player(playerPos, playerSize, 0.0f, "snowman");
 	glm::vec3 Pos = player->position;
 	camera.Position = Pos + glm::vec3(0.0f, 9.0f, 0.0f);
-	
+
 	//Sea
 	sea = new Sea();
-}	
+
+	//Text Renderer Init
+	textRenderer = new TextRenderer();
+
+	//Menu
+	menu = new Menu(window);
+
+}
 
 void Game::ProcessInput(float dt) {
 	if (this->State == GAME_ACTIVE) {
@@ -215,6 +225,65 @@ void Game::ProcessInput(float dt) {
 			this->State = GAME_ACTIVE;
 		}
 	}
+
+
+	//
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && !isKeyProcessed[GLFW_KEY_1]) {
+		isKeyProcessed[GLFW_KEY_1] = true;
+		imgui_view = (IMGUI_VIEW_FREEZE + IMGUI_VIEW_MOVE) - imgui_view;
+		if (imgui_view == IMGUI_VIEW_FREEZE && this->State == GAME_ACTIVE) {
+			firstMouse = true;
+			this->State = GAME_EDIT;
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+		else {
+			this->State = GAME_ACTIVE;
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+	}
+	else if (glfwGetKey(window, GLFW_KEY_1) == GLFW_RELEASE) {
+		isKeyProcessed[GLFW_KEY_1] = false;
+	}
+	//
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && !isKeyProcessed[GLFW_KEY_2]) {
+		isKeyProcessed[GLFW_KEY_2] = true;
+		shadow_show = (WITH_SHADOW + WITHOUT_SHADOW) - shadow_show;
+	
+	}
+	else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE) {
+		isKeyProcessed[GLFW_KEY_2] = false;
+	}
+	//
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS && !isKeyProcessed[GLFW_KEY_3]) {
+		isKeyProcessed[GLFW_KEY_3] = true;
+		particle_show = (WITH_PARTICLE + WITHOUT_PARTICLE) - particle_show;
+
+	}
+	else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_RELEASE) {
+		isKeyProcessed[GLFW_KEY_3] = false;
+	}
+	//
+	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS && !isKeyProcessed[GLFW_KEY_4]) {
+		isKeyProcessed[GLFW_KEY_4] = true;
+		stencil_show = (WITH_STENCIL + WITHOUT_STENCIL) - stencil_show;
+
+	}
+	else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_RELEASE) {
+		isKeyProcessed[GLFW_KEY_4] = false;
+	}
+	//
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS && !isKeyProcessed[GLFW_KEY_5]) {
+		isKeyProcessed[GLFW_KEY_5] = true;
+		blood_lock = (BLOOD_LOOSE + BLOOD_LOCK) - blood_lock;
+
+	}
+	else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_RELEASE) {
+		isKeyProcessed[GLFW_KEY_5] = false;
+	}
+
+	
+
+
 }
 
 void Game::ProcessMouseMovement(float offset) {
@@ -224,28 +293,42 @@ void Game::ProcessMouseMovement(float offset) {
 
 
 void Game::Update(float dt) {
-	if (this->State == GAME_ACTIVE) {
+	if (this->State == GAME_ACTIVE || this->State == GAME_EDIT) {
+		Time += dt * time_rate;
 		particleSystem->Update(dt);
 		
-		scene->Update(Time);
+		if (imgui_view == IMGUI_VIEW_MOVE) {
+			camera.Update(player->position);
+		}
+
 		player->Update(dt);
-		camera.Update(player->position);
+
+		scene->Update(Time);
+		
 		//cout << player->position.x << " " << player->position.y << " " << player->position.z << endl;
 		DoCollisions();
 
-		//if (player->snowmanHeight == 0) {
-		//	this->State = GAME_OVER;
-		//	Time = 0.0;
-		//	
-		//}
-		//Time += dt;
+		if (player->snowmanHeight == 0) {
+			this->State = GAME_OVER;
+			//Time = 0.0;
+			
+		}
+
+		
+
+		//cout << Time << endl;
+		if (Time >= oneDayTime * 3) {
+			this->State = GAME_WIN;
+		}
+		
+		lightUpdate(Time);
 	}
 
-	Time += dt;
+	
 }
 
 void Game::Render() {
-	if (this->State == GAME_ACTIVE) {
+	if (this->State == GAME_ACTIVE || this->State == GAME_OVER || this->State == GAME_WIN || this->State == GAME_EDIT) {
 		//Shadow mapping
 		renderScene(true);
 		//render scene width shadow mapping
@@ -255,7 +338,18 @@ void Game::Render() {
 		// //clear all relevant buffers
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//renderQuad();
-		
+		if (this->State == GAME_OVER) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			Shader textShader = ResourceManager::GetShader("textShader");
+			textRenderer->RenderText(textShader, "GAME OVER", SCR_WIDTH / 2 - 280, SCR_HEIGHT / 2, 2.0, glm::vec3(1.0f, 1.0f, 0.0f));
+		}
+
+		if (this->State == GAME_WIN) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			Shader textShader = ResourceManager::GetShader("textShader");
+			textRenderer->RenderText(textShader, "YOU WIN", SCR_WIDTH / 2 - 220, SCR_HEIGHT / 2, 2.0, glm::vec3(1.0f, 1.0f, 0.0f));
+		}
+		menu->show();
 		
 	}
 	else if (this->State == GAME_PAUSE) {
@@ -265,26 +359,26 @@ void Game::Render() {
 		// Load shader and set uniform variable
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		view = camera.GetViewMatrix();
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
-		Shader lightShader = ResourceManager::GetShader("lightShader");
-		Shader explodeShader = ResourceManager::GetShader("explodeShader");
-		//Player render
+		//view = camera.GetViewMatrix();
+		//projection = glm::perspective(glm::radians(camera.Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
+		//Shader lightShader = ResourceManager::GetShader("lightShader");
+		//Shader explodeShader = ResourceManager::GetShader("explodeShader");
+		////Player render
+		//
+
+		////Time = glfwGetTime();
+		//explodeShader.use();
+		//explodeShader.setFloat("time", Time);
+		// 
+		//player->Draw(explodeShader, false);
+
+
+		//Shader snowShader = ResourceManager::GetShader("snowShader");
+		//particleSystem->Draw(snowShader);
+		//sea->Draw();
+		//scene->Draw(lightShader, false);
+
 		
-
-		//Time = glfwGetTime();
-		explodeShader.use();
-		explodeShader.setFloat("time", Time);
-		 
-		player->Draw(explodeShader, false);
-
-
-		Shader snowShader = ResourceManager::GetShader("snowShader");
-		particleSystem->Draw(snowShader);
-
-		sea->Draw();
-
-		scene->Draw(lightShader, false);
 	}
 }
 
@@ -318,7 +412,10 @@ void Game::renderScene(bool isShadow) {
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		pointDepthShader.use();
-		scene->Draw(pointDepthShader, true);
+		if (shadow_show == WITH_SHADOW) {
+			scene->Draw(pointDepthShader, true);
+		}
+		
 		player->Draw(pointDepthShader, true);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -349,17 +446,23 @@ void Game::renderScene(bool isShadow) {
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
 		//Shader lightShader = ResourceManager::GetShader("lightShader");
 		Shader lightShader = ResourceManager::Shaders["pointLightShader"];//ResourceManager::GetShader("pointLightShader");
+		lightShader.use();
+		lightShader.setVec3("pointLight.ambient", lightAmbient);
 		//Player render
 		Shader snowmanShader = ResourceManager::GetShader("snowmanShader");
 		player->Draw(snowmanShader, false);
 
 
 		Shader snowShader = ResourceManager::GetShader("snowShader");
-		particleSystem->Draw(snowShader);
-
+		if (particle_show == WITH_PARTICLE) {
+			particleSystem->Draw(snowShader);
+		}
 		sea->Draw();
 
 		scene->Draw(lightShader, false);
+		Shader textShader = ResourceManager::GetShader("textShader");
+		//textRenderer->RenderText(textShader, "HP", 5.0f, 660.0f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
+
 	}
 }
 
@@ -370,7 +473,7 @@ void Game::DoCollisions() {
 		{
 			if (CheckCollisionOBB(*player, box))
 			{
-				player->snowmanHeight += 0.05f;
+				player->snowmanHeight += 1.0f;
 				box.destroyed = true;
 			}
 		}
@@ -391,15 +494,12 @@ void Game::DoCollisions() {
 			} // collision in 3D
 			else if (CheckCollisionY(*player, box)){
 				
-				cout << player->position.y + player->size.y << endl;
-				cout << box.position.y << endl;
 
 				
 				// ¶¥Í·
 				if (player->position.y + player->size.y >= box.position.y  && player->position.y + player->size.y - box.position.y <= 4.0) {
 					player->velocityY = 0.0f;
 					player->position.y = box.position.y - player->size.y;
-					cout << "test" << endl;
 				}
 				else {
 					//wrong only for square
@@ -465,4 +565,29 @@ bool Game::CheckCollisionY(GameObject &one, GameObject &two) {
 		two.position.y + two.size.y > one.position.y;
 
 	return collisionY;
+}
+
+void Game::lightUpdate(float time) {
+	float rate;
+	time = time - (int)(time / oneDayTime) * oneDayTime;
+
+	
+	if (time < dayLeft) {
+		rate = 0.0f;
+	}
+	else if (time >= dayLeft && time <= dayRight) {
+		rate = (time - dayLeft) / (dayRight - dayLeft);
+	}
+	else if (time > dayRight && time < nightLeft) {
+		rate = 1.0f;
+	}
+	else if (time >= nightLeft && time <= nightRight) {
+		rate = 1.0f - ((time - nightLeft) / (nightRight - nightLeft));
+	}
+
+
+	float strength = (1.0f - rate) * 0.5f;
+
+	lightAmbient = glm::vec3(strength, strength, strength);
+
 }

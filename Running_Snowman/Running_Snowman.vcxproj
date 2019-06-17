@@ -126,6 +126,12 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="GlobalVariable.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="OpenGL\Includes\imgui\imgui.cpp" />
+    <ClCompile Include="OpenGL\Includes\imgui\imgui_draw.cpp" />
+    <ClCompile Include="OpenGL\Includes\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="OpenGL\Includes\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="OpenGL\Includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -133,12 +139,14 @@
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GlobalVariable.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Scene.h" />
@@ -147,6 +155,7 @@
     <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TextRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

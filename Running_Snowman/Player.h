@@ -13,7 +13,7 @@ public:
 	glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
 
 
-	const float JumpVelocityY = 60.0f;
+	const float JumpVelocityY = 40.0f;
 	const float AcceG = -50.0f;
 	float velocityY = 0.0f;
 	bool isFlying = false;
